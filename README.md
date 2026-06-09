@@ -22,7 +22,7 @@ Uma ferramenta web poderosa e inteligente para geração de **Currículos Profis
 O projeto funciona diretamente no navegador, sem precisar instalar nada no seu computador!
 
 1. Clone o repositório ou baixe o arquivo `.zip`.
-2. Dê um duplo-clique no arquivo `gerador_curriculo.html` para abri-lo no seu navegador favorito (Chrome, Firefox, Edge, etc).
+2. Dê um duplo-clique no arquivo `index.html` para abri-lo no seu navegador favorito (Chrome, Firefox, Edge, etc).
 3. Preencha seus dados na coluna da esquerda. O preview do currículo é gerado instantaneamente na coluna da direita.
 4. Use a aba **"🎯 Otimizador ATS Inteligente"** no topo da tela para alinhar seu currículo com as vagas que deseja.
 5. Clique em `Exportar PDF` ou `Exportar Word`!
@@ -33,7 +33,7 @@ O projeto funciona diretamente no navegador, sem precisar instalar nada no seu c
 
 O projeto é modular e feito com código Vanilla (puro), ideal para quem está iniciando em front-end.
 
-- `gerador_curriculo.html`: A estrutura visual e a interface limpa em português brasileiro.
+- `index.html`: A estrutura visual e a interface limpa em português brasileiro.
 - `style.css`: Toda a estilização. Utiliza CSS Grid, Flexbox e regras em `@media print` para exportação impecável.
 - `script.js`: O coração da ferramenta. Controla armazenamento no navegador (LocalStorage), importação do IBGE (Fetch API), comunicação com as bibliotecas e geração de PDF/Word.
 - `ats_data.js`: O "Banco de Dados" estático. Contém os templates de resumos, soft skills, hard skills e dicionário de palavras-chave divididos por áreas do mercado.
