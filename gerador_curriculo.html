@@ -118,7 +118,7 @@
         <span class="arrow">▼</span>
       </div>
       <div class="section-body" id="sec-pessoal">
-        <div class="field"><label>Nome Completo</label><input id="nome" placeholder="SEU NOME COMPLETO"
+        <div class="field"><label>Nome Completo</label><input id="nome" placeholder="JULIO CESAR ANDRADE"
             oninput="atualizar()"></div>
         <div class="field-row">
           <div class="field"><label>Estado (UF)</label>
@@ -135,7 +135,7 @@
         <div class="field-row">
           <div class="field"><label>Data de Nascimento</label><input type="date" id="data_nascimento"
               oninput="atualizar()"></div>
-          <div class="field"><label>WhatsApp / Telefone</label><input id="tel" placeholder="(DDD) 12345-6789"
+          <div class="field"><label>WhatsApp / Telefone</label><input id="tel" placeholder="(ddd) 12345-6789"
               oninput="atualizar()"></div>
         </div>
         <div class="field-row">
@@ -297,36 +297,6 @@
             </svg>
           </button>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal de Boas Vindas -->
-  <div class="modal-overlay" id="modal-welcome">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none"
-          stroke-linecap="round" stroke-linejoin="round" style="color: #1F3864;">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-          <line x1="16" y1="13" x2="8" y2="13"></line>
-          <line x1="16" y1="17" x2="8" y2="17"></line>
-          <polyline points="10 9 9 9 8 9"></polyline>
-        </svg>
-        <h3>Bem-vindo ao Gerador de Currículo ATS!</h3>
-      </div>
-      <p class="modal-text" style="margin-bottom: 24px;">
-        Para te ajudar a entender melhor como o gerador funciona e como a formatação se comporta, os dados do meu
-        currículo (<strong>Julio Andrade</strong>) estão pré-carregados como exemplo visual.
-      </p>
-
-      <div style="display: flex; gap: 10px; flex-direction: column;">
-        <button class="btn" onclick="iniciarComExemplo()" style="background: #1F3864;">
-          <span>🎉 Manter exemplo e editar por cima</span>
-        </button>
-        <button class="btn" onclick="iniciarZerado()" style="background: #e5e7eb; color: #111827;">
-          <span>🗑️ Limpar tudo e começar do zero</span>
-        </button>
       </div>
     </div>
   </div>

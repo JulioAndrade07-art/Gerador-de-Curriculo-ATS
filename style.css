@@ -817,3 +817,12 @@ body {
   background: #e5e7eb;
   color: #111827;
 }
+
+/* Fix para PDF no mobile iOS/Android */
+body.exporting-pdf #cv-preview {
+  width: 794px !important;
+  max-width: 794px !important;
+  min-height: 0px !important;
+  margin: 0 !important;
+  transform: none !important;
+}

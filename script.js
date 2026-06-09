@@ -403,32 +403,41 @@ function iniciarZerado() {
   location.reload();
 }
 
-// ==================== EXPORTAR PDF ====================
 function exportarPDF() {
   mostrarToast('⏳ Gerando PDF...');
   const el = document.getElementById('cv-preview');
-  const orig = el.style.transform;
-  const origMinHeight = el.style.minHeight; // Salva o minHeight original
-  el.style.transform = 'none';
-  el.style.minHeight = '0px'; // Remove o min-height para evitar página extra em branco
 
+  // No celular/iOS, o width 100% quebra o PDF, usamos body.exporting-pdf para forçar 794px exatos
+  document.body.classList.add('exporting-pdf');
+
+  // Adicionamos parâmetros robustos de compatibilidade mobile base para html2pdf
   const opt = {
     margin: 0,
     filename: `Curriculo_${(dados.nome || 'CV').replace(/\s+/g, '_')}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      windowWidth: 794 // Enganar render mobile
+    },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
     pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
   };
 
-  html2pdf().set(opt).from(el).save().then(() => {
-    el.style.transform = orig;
-    el.style.minHeight = origMinHeight; // Restaura o minHeight original
-    mostrarToast('✅ PDF exportado com sucesso!');
-    setTimeout(() => {
-      mostrarToast('Gostou? Considere doar um PIX no botão verde! 💚');
-    }, 3500);
-  });
+  // Tempo para o navegador repintar com 794px antes de "tirar a foto"
+  setTimeout(() => {
+    html2pdf().set(opt).from(el).save().then(() => {
+      document.body.classList.remove('exporting-pdf');
+      mostrarToast('✅ PDF exportado com sucesso!');
+      setTimeout(() => {
+        mostrarToast('Gostou? Considere doar um PIX no botão verde! 💚');
+      }, 3500);
+    }).catch(err => {
+      document.body.classList.remove('exporting-pdf');
+      mostrarToast('❌ Erro na geração. Feche outras abas e tente novamente!');
+      console.error(err);
+    });
+  }, 300);
 }
 
 // ==================== EXPORTAR DOCX (via Blob de HTML) ====================
