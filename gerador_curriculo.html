@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Currículo ATS</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+
+<body>
+
+  <header class="app-header">
+    <div>
+      <h1>🗂 Gerador de Currículo ATS</h1>
+      <span>Preencha os campos e exporte seu currículo profissional</span>
+    </div>
+    <div class="header-actions">
+      <div class="autosave-indicator">
+        <div class="autosave-dot" id="save-dot"></div>
+        <span id="save-label">Salvo</span>
+      </div>
+      <button class="btn btn-outline" onclick="limparTudo()">🗑 <span>Limpar</span></button>
+      <button class="btn btn-outline" onclick="exportarDocx()">📄 <span>Exportar DOCX</span></button>
+      <button class="btn btn-primary" onclick="exportarPDF()">⬇ <span>Exportar PDF</span></button>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- FORMULÁRIO -->
+    <div class="form-panel" id="form-panel">
+
+      <!-- 🧠 Painel ATS -->
+      <div class="section-tab ats-tab" onclick="toggleSection('sec-ats', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        </svg>
+        🎯 Otimizador ATS Inteligente
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body" id="sec-ats">
+
+        <!-- Área profissional -->
+        <div class="field">
+          <label>Área Profissional</label>
+          <select id="ats-area" onchange="onAreaChange(this.value)">
+            <option value="">— Selecione sua área —</option>
+            <option value="logistica">Logística / Almoxarifado</option>
+            <option value="administracao">Administração / Escritório</option>
+            <option value="atendimento">Atendimento ao Cliente</option>
+            <option value="ti">Tecnologia da Informação</option>
+            <option value="producao">Produção / Operacional</option>
+          </select>
+        </div>
+
+        <!-- Vaga desejada -->
+        <div class="field">
+          <label>Vaga que Deseja</label>
+          <input id="ats-vaga" placeholder="Ex: Auxiliar de Almoxarifado, Assistente Administrativo..."
+            oninput="atualizarPainelATS()">
+        </div>
+
+        <!-- Botão de auto-preenchimento -->
+        <div id="ats-autofill-wrapper" style="display:none; margin-bottom:10px;">
+          <button class="add-btn" style="background:#1F3864; color:white; border-color:#1F3864;"
+            onclick="autoPreencherPorArea(document.getElementById('ats-area').value)">
+            ✨ Preencher automaticamente com conteúdo ATS
+          </button>
+        </div>
+
+        <!-- Descrição da vaga -->
+        <div class="field">
+          <label>Descrição da Vaga <span style="font-weight:400; color:#9ca3af;">(opcional — cole o
+              anúncio)</span></label>
+          <textarea id="ats-descricao" rows="4" oninput="analisarDescricaoVaga()"
+            placeholder="Cole aqui a descrição completa da vaga para análise automática de palavras-chave..."></textarea>
+        </div>
+
+        <!-- ATS SCORE -->
+        <div class="ats-score-box">
+          <div class="ats-score-header">
+            <span class="ats-score-title">ATS Score</span>
+            <span class="ats-score-display"><span id="ats-score-valor">0</span><span
+                style="font-size:14px;font-weight:400;color:#6b7280;">/100</span></span>
+            <span id="ats-score-label" class="ats-score-badge">—</span>
+          </div>
+          <div class="ats-bar-bg">
+            <div id="ats-score-bar" class="ats-bar-fill" style="width:0%"></div>
+          </div>
+          <div id="ats-score-detalhes" class="ats-detalhes"></div>
+        </div>
+
+        <!-- Keywords da vaga -->
+        <div id="ats-keywords-section" style="display:none; margin-top:10px;">
+          <div
+            style="font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">
+            Palavras-chave da Vaga</div>
+          <div id="ats-keywords" class="ats-keywords-list"></div>
+          <div style="margin-top:6px; font-size:10px; color:#9ca3af;">
+            <span style="background:#dcfce7; color:#166534; padding:1px 6px; border-radius:4px;">■ Verde</span> =
+            presente no seu CV &nbsp;|&nbsp;
+            <span style="background:#fee2e2; color:#991b1b; padding:1px 6px; border-radius:4px;">■ Vermelho</span> =
+            ausente
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Dados Pessoais -->
+      <div class="section-tab" onclick="toggleSection('sec-pessoal', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+        </svg>
+        Dados Pessoais
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body" id="sec-pessoal">
+        <div class="field"><label>Nome Completo</label><input id="nome" placeholder="JULIO CESAR ANDRADE"
+            oninput="atualizar()"></div>
+        <div class="field-row">
+          <div class="field"><label>Estado (UF)</label>
+            <select id="estado" onchange="carregarCidades(this.value); atualizar()">
+              <option value="">Selecione o Estado</option>
+            </select>
+          </div>
+          <div class="field"><label>Cidade</label>
+            <select id="cidade" onchange="atualizar()" disabled>
+              <option value="">Selecione o Estado primeiro</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Data de Nascimento</label><input type="date" id="data_nascimento"
+              oninput="atualizar()"></div>
+          <div class="field"><label>WhatsApp / Telefone</label><input id="tel" placeholder="(34) 12345-6789"
+              oninput="atualizar()"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>CNH</label>
+            <select id="cnh" oninput="atualizar()">
+              <option value="">Não possuo / Não informar</option>
+              <option value="ACC">ACC</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="AB">AB</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+            </select>
+          </div>
+          <div class="field"><label>E-mail</label><input id="email" placeholder="julioandrade0706@gmail.com"
+              oninput="atualizar()"></div>
+        </div>
+        <div class="field"><label>LinkedIn (URL resumida)</label><input id="linkedin"
+            placeholder="linkedin.com/in/julio-cesar-andrade-802950206" oninput="atualizar()"></div>
+        <div class="field"><label>GitHub (URL resumida)</label><input id="github"
+            placeholder="github.com/JulioAndrade07-art" oninput="atualizar()"></div>
+      </div>
+
+      <!-- Resumo -->
+      <div class="section-tab" onclick="toggleSection('sec-resumo', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16M4 10h16M4 14h10" />
+        </svg>
+        Resumo Profissional
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body" id="sec-resumo">
+        <div class="field">
+          <label>Texto do Resumo</label>
+          <textarea id="resumo" rows="5" oninput="atualizar()"
+            placeholder="Escreva um resumo profissional com palavras-chave da área..."></textarea>
+        </div>
+      </div>
+
+      <!-- Experiência -->
+      <div class="section-tab" onclick="toggleSection('sec-exp', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="14" rx="2" />
+          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+        </svg>
+        Experiência Profissional
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body" id="sec-exp">
+        <div id="exp-list"></div>
+        <button class="add-btn" onclick="addExp()">+ Adicionar Experiência</button>
+      </div>
+
+      <!-- Formação -->
+      <div class="section-tab" onclick="toggleSection('sec-edu', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+          <path d="M6 12v5c3 3 9 3 12 0v-5" />
+        </svg>
+        Formação Acadêmica
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body" id="sec-edu">
+        <div id="edu-list"></div>
+        <button class="add-btn" onclick="addEdu()">+ Adicionar Formação</button>
+      </div>
+
+      <!-- Cursos -->
+      <div class="section-tab" onclick="toggleSection('sec-cursos', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        </svg>
+        Cursos e Certificações
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body" id="sec-cursos">
+        <div id="curso-list"></div>
+        <button class="add-btn" onclick="addCurso()">+ Adicionar Curso</button>
+      </div>
+
+      <!-- Habilidades -->
+      <div class="section-tab" onclick="toggleSection('sec-hab', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+        </svg>
+        Habilidades
+        <span class="arrow">▼</span>
+      </div>
+      <div class="section-body" id="sec-hab">
+        <div class="field">
+          <label>Habilidades Técnicas (uma por linha)</label>
+          <textarea id="hab-tech" rows="5" oninput="atualizar()"
+            placeholder="Lógica de programação&#10;Banco de dados (SQL)&#10;JavaScript, Python, C, HTML + CSS&#10;Suporte técnico básico&#10;Excel e Google Sheets – Intermediário"></textarea>
+        </div>
+        <div class="field">
+          <label>Habilidades Complementares (uma por linha)</label>
+          <textarea id="hab-soft" rows="5" oninput="atualizar()"
+            placeholder="Organização e análise de dados&#10;Raciocínio lógico&#10;Comunicação escrita e oral&#10;Inglês intermediário&#10;Perfil analítico e proativo"></textarea>
+        </div>
+      </div>
+
+    </div><!-- /form-panel -->
+
+    <!-- PREVIEW -->
+    <div class="preview-panel">
+      <div id="cv-preview">
+        <!-- gerado pelo JS -->
+      </div>
+    </div>
+
+  </div><!-- /layout -->
+
+  <!-- Balão de dicas ATS -->
+  <div id="ats-balao" class="ats-balao" style="display:none;"></div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="ats_data.js"></script>
+  <script src="ats_engine.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>
