@@ -41,6 +41,12 @@ let dados = {
 window.addEventListener('DOMContentLoaded', () => {
   carregarDoStorage();
 
+  const isFirstVisit = !localStorage.getItem('sawWelcomeModal');
+  if (isFirstVisit) {
+    const modal = document.getElementById('modal-welcome');
+    if (modal) modal.classList.add('show');
+  }
+
   if (!dados.estado_uf && dados.cidade && dados.cidade.includes(', ')) {
     const parts = dados.cidade.split(', ');
     dados.cidade_nome = parts[0];
@@ -368,7 +374,32 @@ function carregarDoStorage() {
 
 function limparTudo() {
   if (!confirm('Limpar todos os dados e começar do zero?')) return;
-  localStorage.removeItem(KEY);
+  const dVazio = {
+    nome: '', cidade: '', estado_uf: '', cidade_nome: '',
+    data_nascimento: '', tel: '', cnh: '', email: '', linkedin: '', github: '', resumo: '',
+    experiencias: [], formacoes: [], cursos: [], habTech: '', habSoft: '',
+    atsArea: '', atsVaga: ''
+  };
+  localStorage.setItem(KEY, JSON.stringify(dVazio));
+  location.reload();
+}
+
+// ==================== BOAS VINDAS ====================
+function iniciarComExemplo() {
+  localStorage.setItem('sawWelcomeModal', 'true');
+  const m = document.getElementById('modal-welcome');
+  if (m) m.classList.remove('show');
+}
+
+function iniciarZerado() {
+  localStorage.setItem('sawWelcomeModal', 'true');
+  const dVazio = {
+    nome: '', cidade: '', estado_uf: '', cidade_nome: '',
+    data_nascimento: '', tel: '', cnh: '', email: '', linkedin: '', github: '', resumo: '',
+    experiencias: [], formacoes: [], cursos: [], habTech: '', habSoft: '',
+    atsArea: '', atsVaga: ''
+  };
+  localStorage.setItem(KEY, JSON.stringify(dVazio));
   location.reload();
 }
 
