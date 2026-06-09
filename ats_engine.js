@@ -217,7 +217,6 @@ function initTooltipsATS() {
         const dica = ATS_DICAS_CAMPOS[id];
 
         el.addEventListener('focus', () => mostrarBalaoDica(el, dica));
-        el.addEventListener('blur', () => esconderBalaoDica());
     });
 
     // dicas dinâmicas por área nos campos de experiência/resumo
@@ -248,6 +247,7 @@ function mostrarBalaoDica(el, dica) {
     const cor = nivelCor[dica.nivel] || '#1F3864';
 
     balao.innerHTML = `
+    <button class="balao-fechar" onclick="esconderBalaoDica()">&times;</button>
     <div class="balao-titulo" style="color: ${cor}">${dica.titulo}</div>
     <div class="balao-texto">${dica.dica}</div>
   `;
@@ -255,21 +255,35 @@ function mostrarBalaoDica(el, dica) {
     const rect = el.getBoundingClientRect();
     const formPanel = document.querySelector('.form-panel');
     const panelRect = formPanel.getBoundingClientRect();
+    const isMobile = window.innerWidth <= 900;
 
     balao.style.display = 'block';
     balao.style.opacity = '0';
-    balao.style.transform = 'translateY(4px)';
+    balao.style.transform = isMobile ? 'translateY(4px)' : 'translateY(4px)';
+    balao.className = isMobile ? 'ats-balao mobile' : 'ats-balao';
 
-    // Posicionar à direita do painel esquerdo
     const top = rect.top + window.scrollY;
-    balao.style.left = (panelRect.right + 12) + 'px';
-    balao.style.top = Math.max(80, top) + 'px';
-    balao.style.maxWidth = '280px';
 
-    requestAnimationFrame(() => {
-        balao.style.opacity = '1';
-        balao.style.transform = 'translateY(0)';
-    });
+    if (isMobile) {
+        balao.style.left = '20px';
+        balao.style.right = '20px';
+        balao.style.maxWidth = 'none';
+        balao.style.top = top + 'px';
+        requestAnimationFrame(() => {
+            balao.style.transform = 'translateY(calc(-100% - 14px))';
+            balao.style.opacity = '1';
+        });
+    } else {
+        balao.style.left = (panelRect.right + 12) + 'px';
+        balao.style.right = 'auto'; // Reset right in case it was set
+        balao.style.top = Math.max(80, top) + 'px';
+        balao.style.maxWidth = '280px';
+        balao.style.transform = 'translateY(4px)';
+        requestAnimationFrame(() => {
+            balao.style.transform = 'translateY(0)';
+            balao.style.opacity = '1';
+        });
+    }
 }
 
 function esconderBalaoDica() {

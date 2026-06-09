@@ -394,6 +394,9 @@ function exportarPDF() {
     el.style.transform = orig;
     el.style.minHeight = origMinHeight; // Restaura o minHeight original
     mostrarToast('✅ PDF exportado com sucesso!');
+    setTimeout(() => {
+      mostrarToast('Gostou? Considere doar um PIX no botão verde! 💚');
+    }, 3500);
   });
 }
 
@@ -437,7 +440,12 @@ function exportarDocx() {
   a.download = `Curriculo_${(dados.nome || 'CV').replace(/\s+/g, '_')}.doc`;
   a.click();
   URL.revokeObjectURL(url);
-  setTimeout(() => mostrarToast('✅ Arquivo Word exportado!'), 400);
+  setTimeout(() => {
+    mostrarToast('✅ Arquivo Word exportado!');
+    setTimeout(() => {
+      mostrarToast('Gostou? Considere doar um PIX no botão verde! 💚');
+    }, 3500);
+  }, 400);
 }
 
 // ==================== TOAST ====================
@@ -521,3 +529,25 @@ function analisarDescricaoVaga() {
   atualizarPainelATS();
 }
 
+// ==================== PIX DOAÇÃO ====================
+function abrirModalPix() {
+  const m = document.getElementById('modal-pix');
+  if (m) m.classList.add('show');
+}
+
+function fecharModalPix() {
+  const m = document.getElementById('modal-pix');
+  if (m) m.classList.remove('show');
+}
+
+function copiarChavePix() {
+  const input = document.getElementById('pix-chave');
+  if (!input) return;
+  input.select();
+  input.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(input.value).then(() => {
+    mostrarToast('✅ Chave Copiada! Obrigado!');
+  }).catch(() => {
+    mostrarToast('❌ Erro ao copiar chave.');
+  });
+}

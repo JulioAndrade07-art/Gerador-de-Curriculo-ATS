@@ -252,6 +252,55 @@
   <!-- Balão de dicas ATS -->
   <div id="ats-balao" class="ats-balao" style="display:none;"></div>
 
+  <!-- Botão Flutuante PIX -->
+  <button class="btn-pix-float" onclick="abrirModalPix()" title="Doar um café via PIX">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path
+        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+      </path>
+    </svg>
+    <span>Apoiar Projeto</span>
+  </button>
+
+  <!-- Modal PIX -->
+  <div class="modal-overlay" id="modal-pix" onclick="fecharModalPix()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="fecharModalPix()">&times;</button>
+      <div class="modal-header">
+        <svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="2" fill="none"
+          stroke-linecap="round" stroke-linejoin="round" style="color: #0d9488;">
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+          <line x1="6" y1="1" x2="6" y2="4"></line>
+          <line x1="10" y1="1" x2="10" y2="4"></line>
+          <line x1="14" y1="1" x2="14" y2="4"></line>
+        </svg>
+        <h3>Pagar um Café</h3>
+      </div>
+      <p class="modal-text">Este gerador open-source com IA te ajudou a conseguir aquela entrevista? Considere apoiar o
+        desenvolvimento com qualquer valor!</p>
+
+      <div class="pix-qrcode-container">
+        <img src="qrcodePIX.jpeg" alt="QR Code PIX" class="pix-img">
+      </div>
+
+      <div class="pix-copiacola">
+        <label>Ou PIX Chave Aleatória:</label>
+        <div class="pix-input-group">
+          <input type="text" id="pix-chave" value="fb4818bf-aaec-43b9-9fcc-e58515009426" readonly>
+          <button class="btn-copiar-pix" onclick="copiarChavePix()">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script src="ats_data.js"></script>
