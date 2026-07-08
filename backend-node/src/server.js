@@ -136,8 +136,12 @@ app.get(/^(?!\/api).+/, (req, res) => {
     res.sendFile(path.join(DIST, 'index.html'));
 });
 
-app.listen(PORT, () => {
-    console.log(`\n🚀 ATS Generator Unificado online!`);
-    console.log(`🔗 Interface: http://localhost:${PORT}`);
-    console.log(`📡 API: http://localhost:${PORT}/api/health\n`);
-});
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`\n🚀 ATS Generator Unificado online!`);
+        console.log(`🔗 Interface: http://localhost:${PORT}`);
+        console.log(`📡 API: http://localhost:${PORT}/api/health\n`);
+    });
+}
+
+module.exports = app;
