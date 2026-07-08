@@ -20,15 +20,6 @@ O **ATS Resume Generator** resolve esse problema ao fornecer uma interface que g
 
 ---
 
-## 📺 Demonstração
-
-*Espaço reservado para capturas de tela e GIFs demonstrativos da aplicação em execução:*
-
-![Interface do Gerador de Currículo ATS](<img width="1554" height="936" alt="image" src="https://github.com/user-attachments/assets/d0dd70eb-483f-43c8-b2fe-2de269e9acef" />
-) <!-- Insira a imagem do dashboard aqui -->
-
----
-
 ## ✨ Funcionalidades
 
 * **🧠 Motor ATS Score Integrado:** Analisa a estrutura e o vocabulário em tempo real, fornecendo feedbacks e uma nota de `0 a 100` com guias de melhoria.
