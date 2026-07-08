@@ -1,65 +1,223 @@
-<h1 align="center">Gerador de Currículo Inteligente (Otimizado para ATS) 🎯</h1>
+# 🎯 ATS Resume Generator (Gerador de Currículo Inteligente)
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Licen%C3%A7a-GPLv3-blue.svg" alt="License GPLv3">
-  <img src="https://img.shields.io/badge/Feito%20com-HTML%20%7C%20CSS%20%7C%20JS-F7DF1E.svg" alt="Feito com HTML CSS JS">
+  <img src="https://img.shields.io/github/license/JulioAndrade07-art/Gerador-de-Curriculo-ATS?style=for-the-badge&color=0d9488" alt="License GPLv3">
+  <img src="https://img.shields.io/badge/Node.js-v20+-green?style=for-the-badge&logo=node.js" alt="Node Version">
+  <img src="https://img.shields.io/badge/React-v19-61DAFB?style=for-the-badge&logo=react" alt="React Page">
+  <img src="https://img.shields.io/badge/Vite-v8.0-BD34B9?style=for-the-badge&logo=vite" alt="Vite Version">
+  <img src="https://img.shields.io/badge/Version-v2.0.0-0d9488?style=for-the-badge" alt="Project Version">
 </p>
 
-Uma ferramenta web poderosa e inteligente para geração de **Currículos Profissionais otimizados para ATS (Applicant Tracking Systems)**. Desenvolvida para ajudar candidatos a passarem pelos filtros automáticos de grandes empresas, gerando currículos limpos, diretos e com palavras-chave estratégicas.
+Uma solução profissional, automatizada e moderna para a criação, otimização e validação de currículos voltados a sistemas **ATS** (*Applicant Tracking System*). Desenvolvido com uma arquitetura desacoplada que une a velocidade do **React** ao poder de processamento do **Node.js** para extrações baseadas em OCR e análise semântica.
+
+---
+
+## 📖 Sobre
+
+Grandes empresas utilizam sistemas automatizados (ATS) para pré-selecionar currículos. Currículos que possuem imagens pesadas, tabelas complexas ou fontes ilegíveis aos robôs de leitura são descartados sumariamente. 
+
+O **ATS Resume Generator** resolve esse problema ao fornecer uma interface que gera documentos limpos, estruturados no padrão universal de rastreamento do ATS e que podem ser baixados em formatos de compatibilidade máxima (**Microsoft Word - .docx** e **PDF**). O usuário final obtém feedbacks imediatos sobre como otimizar seu conteúdo profissional e pode, inclusive, carregar seus registros de emprego prévios na hora importando os dados de sua carteira de trabalho digital num clique.
+
+---
+
+## 📺 Demonstração
+
+*Espaço reservado para capturas de tela e GIFs demonstrativos da aplicação em execução:*
+
+![Interface do Gerador de Currículo ATS](/frontend-react/public/favicon.svg) <!-- Insira a imagem do dashboard aqui -->
+
+---
 
 ## ✨ Funcionalidades
 
-- 🧠 **Motor ATS Integrado**: Analisa seu currículo em tempo real e dá uma pontuação (0 a 100) baseada nas melhores práticas de recrutamento.
-- 🎯 **Análise de Vagas**: Cole a descrição da vaga que você quer e o sistema identifica automaticamente as palavras-chave necessárias e sugere melhorias.
-- 💡 **Auto-Preenchimento Inteligente**: Escolha sua área (TI, Logística, Atendimento, etc.) e o sistema sugere o Resumo Profissional e Habilidades com base no mercado atual.
-- 📄 **Exportação Dupla**: Gere seu currículo em formato **Word (.doc)** perfeito para os robôs ATS lerem, ou em **PDF** formatado em 1 página, pronto para impressão.
-- 📱 **Interface Fluida e Responsiva**: Funciona no celular e conta com uma interface dividida que mostra o resultado final em tempo real (Split View).
-- 📍 **Conexão com API do IBGE**: Seleção dinâmica de Estado (UF) e Cidade diretamente da base oficial do Brasil.
-- 💬 **WhatsApp Dinâmico**: Gera um link seguro que permite que os recrutadores cliquem e falem diretamente com você pelo WhatsApp no PDF.
+* **🧠 Motor ATS Score Integrado:** Analisa a estrutura e o vocabulário em tempo real, fornecendo feedbacks e uma nota de `0 a 100` com guias de melhoria.
+* **✨ Otimizador e Auto-Preenchimento por Área:** Permite que o usuário insira templates ideais com base em cargos padrão de mercado (TI, Administração, Comercial, RH, Finanças, Compras, Produção, etc.).
+* **📤 Leitor da Carteira de Trabalho Digital (CTPS):** Importação inteligente de dados do PDF oficial da Carteira de Trabalho para o formulário.
+* **👁️ Split-View Dinâmico (Feedback Instantâneo):** Conforme os dados são alterados, o design do documento A4 é renderizado na tela.
+* **🌐 Consumo Dinâmico do IBGE:** Preenchimento dinâmico de Cidades e Estados buscando direto das APIs públicas brasileiras.
+* **📄 Exportação Dupla Profissional:**
+  * **Microsoft Word (.docx):** Livre de tabelas invisíveis, ideal para scanners ATS.
+  * **PDF Impecável:** PDF renderizado em folha única, perfeitamente compatível para impressão.
+* **💚 Painel de Doação PIX Integrado:** Interface flutuante com QR Code e recurso "Copia e Cola" dinâmico para facilitar o apoio voluntário do projeto.
 
-## 🚀 Como Usar
+---
 
-O projeto funciona diretamente no navegador, sem precisar instalar nada no seu computador!
+## 🎨 Arquitetura Completa
 
-1. Clone o repositório ou baixe o arquivo `.zip`.
-2. Dê um duplo-clique no arquivo `index.html` para abri-lo no seu navegador favorito (Chrome, Firefox, Edge, etc).
-3. Preencha seus dados na coluna da esquerda. O preview do currículo é gerado instantaneamente na coluna da direita.
-4. Use a aba **"🎯 Otimizador ATS Inteligente"** no topo da tela para alinhar seu currículo com as vagas que deseja.
-5. Clique em `Exportar PDF` ou `Exportar Word`!
+O projeto adota uma arquitetura cliente-servidor para executar processamento computacional intensivo (como o reconhecimento de caracteres em imagens) sem diminuir o desempenho da tela.
 
-> 💡 **Nota do Autor (Exemplo)**: O código atual carrega o meu próprio currículo (Julio Andrade) quando você o abre pela primeira vez, para servir de demonstração visual de como a formatação se comporta ao estar completa. Sinta-se à vontade para deletar tudo e colocar seus dados! Os dados digitados são salvos no seu próprio navegador para você não perder trabalho.
+```
++-------------------------------------------------------+
+|                   FRONTEND (React)                    |
+|  - Edição de Campos                                   |
+|  - Visualização de PDF em tempo real                  |
+|  - Motor Local de Validação de Score (atsEngine)      |
++-------------------------------------------------------+
+                           │
+       Upload do PDF       │ API Requests
+         da CTPS           ▼ (/api/upload, /api/health)
++-------------------------------------------------------+
+|                    BACKEND (Node)                     |
+|  - upload de buffer temporário via Multer             |
+|  - Processamento do PDF-Parse (Extração Digital)      |
+|  - OCR local via Tesseract.js (Failsafe para Imagens) |
+|  - Mapeador de Padrões Regex (Parser de Empregos)      |
++-------------------------------------------------------+
+                           │
+    JSON Estruturado       │
+       da Carteira         ▼
++-------------------------------------------------------+
+|                   PREENCHIMENTO                       |
+|               Automático no React                     |
++-------------------------------------------------------+
+```
+
+---
 
 ## 🗂 Estrutura do Projeto
 
-O projeto é modular e feito com código Vanilla (puro), ideal para quem está iniciando em front-end.
+Abaixo está o mapeamento dos repositórios internos e seus módulos:
 
-- `index.html`: A estrutura visual e a interface limpa em português brasileiro.
-- `style.css`: Toda a estilização. Utiliza CSS Grid, Flexbox e regras em `@media print` para exportação impecável.
-- `script.js`: O coração da ferramenta. Controla armazenamento no navegador (LocalStorage), importação do IBGE (Fetch API), comunicação com as bibliotecas e geração de PDF/Word.
-- `ats_data.js`: O "Banco de Dados" estático. Contém os templates de resumos, soft skills, hard skills e dicionário de palavras-chave divididos por áreas do mercado.
-- `ats_engine.js`: O "Cérebro" do ATS. Calcula a pontuação e os arrays de intersecção entre o que você digitou e as palavras-chave da vaga que você colou, além de gerenciar os balões de dica contextuais.
-
-## 📚 Bibliotecas Utilizadas
-
-Este projeto não possui um `package.json` complicado nem build steps complexos de Node.js. Ele consome as bibliotecas via CDN diretamente no HTML:
-
-- `html2pdf.js / html2canvas / jsPDF`: Para a captura da tela e montagem perfeita do documento PDF em página A4.
-- `lucide`: Conjunto de ícones vetoriais modernos.
-- `API do IBGE (Localidades)`: Para buscar Estados e Municípios gratuitamente em tempo real.
-
-## 📜 Licença (Open Source Seguro)
-
-Este projeto está sob a licença **GNU General Public License v3.0 (GPLv3)**.
-Isso garante que o projeto será **sempre 100% de código aberto**.
-
-**O que você PODE fazer:**
-- Usar livremente para construir seu próprio currículo modificado.
-- Estudar o código e hospedar na sua própria página no GitHub Pages, Vercel, etc.
-- Modificar, adicionar botões, mudar o design de tudo.
-
-**O que você NÃO PODE fazer (Anti-Plágio):**
-- Você **não pode** pegar este código, mudar o nome, e vendê-lo ou fechar o código-fonte (não pode virar software proprietário).
-- Quaisquer cópias ou modificações deste código (projetos derivados) DEVEM OBRIGATORIAMENTE ser distribuídos abertamente sob esta mesma licença GPLv3 e DEVEM conter atribuição de crédito ao autor original.
+```text
+Gerador-de-Curriculo-ATS/
+├── backend-node/                 # APIs e Serviços de Processamento (Servidor)
+│   ├── src/
+│   │   └── server.js             # Rotas de Upload, Expressões de OCR e Middleware
+│   ├── uploads/                  # Buffer temporário para processamento de arquivos
+│   ├── package.json              # Dependências e bibliotecas do backend
+│   ├── tsconfig.json             # Configuração do compilador TypeScript
+│   └── por.traineddata           # Modelos locais de linguagem em Português para OCR
+│
+├── frontend-react/               # Interface Gráfica do Usuário (Cliente Web)
+│   ├── dist/                     # Bundle otimizado gerado para produção
+│   ├── public/                   # Arquivos estáticos (Favoritos, Imagens, QR Code)
+│   ├── src/
+│   │   ├── components/           # Componentes do Dashboard e Formulários
+│   │   │   ├── AtsPanel.tsx      # Barra de Progresso e Métricas do Score
+│   │   │   ├── CtpsImporter.tsx  # Input de Upload e Processador do retorno
+│   │   │   ├── DonationModal.tsx # Pop-up animado de Doações/PIX
+│   │   │   └── FormPanel.tsx     # Acoplamento de Editores colapsáveis
+│   │   ├── contexts/
+│   │   │   └── ResumeContext.tsx # Context API que dita o Estado e LocalStorage do App
+│   │   ├── data/
+│   │   │   └── atsData.ts        # Modelos estáticos de Vagas e Dicas de Scanners
+│   │   ├── services/
+│   │   │   ├── atsEngine.ts      # Verificações de String e Algoritmo de Score
+│   │   │   ├── docxService.ts    # Mapeamento do template compatível com Word
+│   │   │   └── pdfService.ts     # Configurações do Canvas de Exportação de PDF
+│   │   ├── App.css               # Folha de Estilos dos Modais e Botões
+│   │   └── index.css             # Cores institucionais e Tokens de Design
+│   └── tsconfig.json             # Configurações do ecossistema TypeScript
+└── README.md
+```
 
 ---
-Feito com 💡 e Código Limpo. Boas entrevistas!
+
+## 🛠 Tecnologias Utilizadas
+
+### Frontend
+- **React (v19):** Arquiteturas baseadas em componentes reativos para formulários complexos.
+- **TypeScript:** Fornece tipagem estática confiável para impedir bugs em arrays de histórico.
+- **Vite:** Build runner extremamente veloz em comparação a bundlers legados.
+- **HTML5 & Vanilla CSS:** Design Responsivo com CSS Grid e variáveis globais.
+- **html2pdf.js / html2canvas / jsPDF:** Renderizador de canvas vetoriais no cliente.
+- **html-to-docx:** Geração de documento de texto rico offline em formato binário `.docx`.
+
+### Backend
+- **Node.js + Express:** Servidor back-end robusto e assíncrono.
+- **Tesseract.js (v5.1):** OCR open-source rodando offline no servidor para digitalizar papéis escaneados ou imagens.
+- **pdf-parse:** Parser leve que lê stream de dados de arquivos PDF nativos.
+- **Multer:** Middleware para gerenciamento seguro e recepção de upload de arquivos binários.
+
+---
+
+## 🚀 Instalação e Execução
+
+### Pré-requisitos
+* **Node.js** instalado na sua máquina (versão recomendado v20 ou superior).
+
+### Instalação Completa
+Instale as dependências executando os passos no diretório do projeto:
+
+```bash
+# Clone o repositório
+git clone https://github.com/JulioAndrade07-art/Gerador-de-Curriculo-ATS.git
+cd Gerador-de-Curriculo-ATS
+
+# Configure o Frontend
+cd frontend-react
+npm install
+
+# Configure o Backend
+cd ../backend-node
+npm install
+```
+
+### Como Executar
+
+#### Modo de Desenvolvimento Separado
+Você pode rodar cada aplicação em um terminal dedicado:
+
+* **Inverter o Servidor Backend (API):**
+  ```bash
+  cd backend-node
+  npm run start (ou node src/server.js)
+  ```
+  *(O servidor escutará na porta de rede `3000`)*
+
+* **Inicializar o Servidor Frontend (Vite):**
+  ```bash
+  cd frontend-react
+  npm run dev
+  ```
+  *(Iniciará o servidor de desenvolvimento na porta descrita pelo Vite, normalmente `5173`)*
+
+#### Executando Tudo Unificado (Produção)
+Através do script integrado no frontend, você pode compilar a aplicação e expor o backend de maneira integrada:
+
+```bash
+cd frontend-react
+npm run start:full
+```
+Este comando executa o build dos arquivos estáticos na pasta `/dist` do front-end e abre o servidor Express na porta `3000`, servindo tanto a API quanto a interface visual no mesmo endereço local: **`http://localhost:3000`**.
+
+---
+
+## 🌟 Evolução e Versões
+
+### Comparação Técnica das Versões
+
+| Recurso | Versão Antiga (V1 - Vanilla) | Versão Atual (V2 - React + Node) |
+| :--- | :--- | :--- |
+| **Tecnologia Base** | HTML / Vanilla JavaScript | React 19 + TypeScript / Node.js |
+| **Estrutura** | Monolito de Arquivo Único (index, script) | Arquitetura Cliente-Servidor Desacoplada |
+| **Escalabilidade** | Baixa (Dificuldade de evoluir inputs) | Altíssima (Módulos, Componentes e Context) |
+| **Uso de Dependências** | Via CDN (dependia de conexões de terceiros) | Gerenciadas via `npm` local (Seguro offline) |
+| **Leitura de Arquivos (CTPS)**| Inexistente (Apenas digitação) | Nativa no Backend (pdf-parse + Tesseract OCR) |
+| **Interface de Estilos** | CSS Clássico ad-hoc | Sistema de cores e abas colapsáveis dinâmicas |
+| **Geração de Word** | Script simples em Javascript | Biblioteca dedicada gerando estrutura DOCX real |
+| **Manutenção Geral** | Complexa (arquivos gigantes) | Muito simples (arquivos focados e tipados) |
+
+---
+
+## 🗺️ Roadmap de Melhorias Futuras
+
+- [ ] Integração com Modelos de Linguagem (APIs de IA) para sugestão personalizada de atividades baseadas no cargo.
+- [ ] Exportação direta para Google Drive.
+- [ ] Criação de temas visuais alternativos para o currículo (Layouts Modernos, Criativos e Acadêmicos).
+- [ ] Inclusão de gerador automático de cartas de apresentação baseadas na descrição da vaga.
+
+---
+
+## 📜 Licença
+
+Este projeto é disponibilizado sob a licença **GNU General Public License v3.0 (GPLv3)** - Consulte os detalhes no arquivo [LICENSE](LICENSE) para termos de modificações ou uso derivado.
+
+---
+
+## 👥 Autor
+
+Desenvolvido por **Julio Andrade**. Conecte-se comigo!
+
+* **GitHub:** [@JulioAndrade07-art](https://github.com/JulioAndrade07-art)
+* **LinkedIn:** [Julio Andrade](https://linkedin.com) <!-- Insira seu link caso queira -->
