@@ -10,25 +10,17 @@ const Tesseract = require('tesseract.js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const UPLOAD_DIR = path.join(__dirname, '..', 'uploads');
 
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+// /tmp é a única pasta com permissão de escrita no Vercel Serverless
+const TMP_DIR = '/tmp';
 
 app.use(cors());
 app.use(express.json());
 
-// ─── MULTER CONFIG ───
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, UPLOAD_DIR),
-    filename: (req, file, cb) => {
-        const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-        cb(null, `${unique}${path.extname(file.originalname)}`);
-    },
-});
-
+// ─── MULTER CONFIG (memoryStorage para compatibilidade com Vercel) ───
 const upload = multer({
-    storage,
-    limits: { fileSize: 20 * 1024 * 1024 },
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         if (file.mimetype === 'application/pdf') return cb(null, true);
         cb(new Error('Apenas arquivos PDF são aceitos.'));
@@ -36,9 +28,9 @@ const upload = multer({
 });
 
 // ─── CTPS LOGIC ───
-async function extractText(filePath) {
+async function extractText(buffer) {
+    // 1. Tenta pdf-parse direto no buffer (não precisa de arquivo em disco)
     try {
-        const buffer = fs.readFileSync(filePath);
         const data = await pdfParse(buffer);
         if (data.text && data.text.trim().length > 100) {
             return { text: data.text, method: 'pdf-parse' };
@@ -47,14 +39,21 @@ async function extractText(filePath) {
         console.warn('[pdf-parse] Falhou:', err.message);
     }
 
+    // 2. Fallback: Tesseract OCR - precisa de arquivo temporário em /tmp
+    const tmpPath = path.join(TMP_DIR, `ctps_${Date.now()}.pdf`);
     try {
-        console.log('[Tesseract] Iniciando OCR...');
-        const { data: { text } } = await Tesseract.recognize(filePath, 'por');
+        fs.writeFileSync(tmpPath, buffer);
+        console.log('[Tesseract] Iniciando OCR em:', tmpPath);
+        const { data: { text } } = await Tesseract.recognize(tmpPath, 'por', {
+            langPath: path.join(__dirname, '..'),
+        });
         if (text && text.trim().length > 50) {
             return { text, method: 'tesseract-ocr' };
         }
     } catch (err) {
         console.warn('[Tesseract] Falhou:', err.message);
+    } finally {
+        if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
     }
 
     throw new Error('Não foi possível extrair texto do PDF.');
@@ -108,7 +107,8 @@ app.post('/api/upload', upload.single('pdf'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
 
     try {
-        const { text, method } = await extractText(req.file.path);
+        // req.file.buffer disponível graças ao memoryStorage
+        const { text, method } = await extractText(req.file.buffer);
         const result = parseCTPS(text);
 
         console.log(`[API] Sucesso! Texto extraído via: ${method}`);
@@ -116,11 +116,6 @@ app.post('/api/upload', upload.single('pdf'), async (req, res) => {
     } catch (err) {
         console.error('[API] Erro no processamento:', err.message);
         res.status(422).json({ error: err.message });
-    } finally {
-        // Garantir que o arquivo temporário seja apagado sempre
-        if (req.file && req.file.path) {
-            fs.unlink(req.file.path, (e) => { if (e) console.error('Erro ao deletar temporário:', e); });
-        }
     }
 });
 
