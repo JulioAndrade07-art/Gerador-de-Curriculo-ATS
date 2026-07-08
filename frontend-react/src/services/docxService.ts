@@ -1,9 +1,12 @@
+// @ts-ignore – html-to-docx não possui typings próprios
+import HTMLtoDOCX from 'html-to-docx';
+
 export const exportToDocx = async (htmlContent: string, filename: string) => {
     console.log(`Iniciando exportação DOCX do arquivo ${filename}...`);
 
     const styles = `
         <style>
-            body { font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; color: #000; }
+            body { font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; color: #000; margin: 0; padding: 0; }
             .cv-name { text-align: center; font-size: 20pt; font-weight: bold; color: #1F3864; margin-bottom: 4px; }
             .cv-contact { text-align: center; font-size: 8.5pt; color: #444; margin-bottom: 3px; }
             .cv-section-title { font-size: 9.5pt; font-weight: bold; color: #1F3864; text-transform: uppercase; border-bottom: 2px solid #1F3864; margin-top: 10px; margin-bottom: 4px; padding-bottom: 2px; }
@@ -21,34 +24,39 @@ export const exportToDocx = async (htmlContent: string, filename: string) => {
         </style>
     `;
 
+    const docHTML = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8">${styles}</head>
+<body>
+  <div style="width:100%;max-width:800px;margin:auto;">
+    ${htmlContent}
+  </div>
+</body>
+</html>`;
 
-    const docxHTML = `
-        <html xmlns:o="urn:schemas-microsoft-com:office:office"
-              xmlns:w="urn:schemas-microsoft-com:office:word"
-              xmlns="http://www.w3.org/TR/REC-html40">
-        <head>
-            <meta charset="utf-8">
-            ${styles}
-        </head>
-        <body>
-            <div style="width: 100%; max-width: 800px; margin: auto;">
-                ${htmlContent}
-            </div>
-        </body>
-        </html>
-    `;
+    try {
+        const blob = await HTMLtoDOCX(docHTML, null, {
+            table: { row: { cantSplit: true } },
+            footer: false,
+            pageNumber: false,
+            font: 'Calibri',
+            fontSize: 22,
+            margins: { top: 720, right: 720, bottom: 720, left: 720 },
+        });
 
-    const blob = new Blob(['\ufeff', docxHTML], { type: 'application/msword' });
-    const url = URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob as Blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${filename}.doc`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    return true;
+        console.log('DOCX exportado com sucesso!');
+        return true;
+    } catch (error) {
+        console.error('Erro ao exportar DOCX:', error);
+        return false;
+    }
 };
-
