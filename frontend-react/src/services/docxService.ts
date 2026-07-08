@@ -1,6 +1,3 @@
-// @ts-ignore – html-to-docx não possui typings próprios
-import HTMLtoDOCX from 'html-to-docx';
-
 export const exportToDocx = async (htmlContent: string, filename: string) => {
     console.log(`Iniciando exportação DOCX do arquivo ${filename}...`);
 
@@ -25,8 +22,13 @@ export const exportToDocx = async (htmlContent: string, filename: string) => {
     `;
 
     const docHTML = `<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8">${styles}</head>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+  <meta charset="utf-8">
+  ${styles}
+</head>
 <body>
   <div style="width:100%;max-width:800px;margin:auto;">
     ${htmlContent}
@@ -35,6 +37,9 @@ export const exportToDocx = async (htmlContent: string, filename: string) => {
 </html>`;
 
     try {
+        // Importação dinâmica para evitar crash do Vite com módulos CommonJS
+        const HTMLtoDOCX = (await import('html-to-docx')).default;
+
         const blob = await HTMLtoDOCX(docHTML, null, {
             table: { row: { cantSplit: true } },
             footer: false,
@@ -57,6 +62,17 @@ export const exportToDocx = async (htmlContent: string, filename: string) => {
         return true;
     } catch (error) {
         console.error('Erro ao exportar DOCX:', error);
-        return false;
+
+        // Fallback seguro: download como .doc HTML mesmo caso html-to-docx falhe
+        const blob = new Blob(['\ufeff', docHTML], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        return true;
     }
 };

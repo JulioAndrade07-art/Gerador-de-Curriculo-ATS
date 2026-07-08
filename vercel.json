@@ -19,8 +19,11 @@
             "dest": "backend-node/src/server.js"
         },
         {
+            "handle": "filesystem"
+        },
+        {
             "src": "/(.*)",
-            "dest": "frontend-react/$1"
+            "dest": "/index.html"
         }
     ]
 }
