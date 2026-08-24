@@ -1,5 +1,6 @@
 import { useContext, useState } from 'react';
 import { ResumeContext } from '../contexts/ResumeContext';
+import { PeriodPicker } from './PeriodPicker';
 
 export const EducationEditor = () => {
     const context = useContext(ResumeContext);
@@ -47,26 +48,26 @@ export const EducationEditor = () => {
                         <button className="remove-btn" onClick={() => removeEdu(idx)}>✕</button>
                         <div className="field">
                             <label>Curso / Grau</label>
-                            <input value={edu.curso} onChange={(e) => handleChange(idx, 'curso', e.target.value)} />
+                            <input value={edu.curso} onChange={(e) => handleChange(idx, 'curso', e.target.value)} placeholder="Ex: Bacharelado em Administração" />
                         </div>
                         <div className="field">
                             <label>Instituição</label>
-                            <input value={edu.instituicao} onChange={(e) => handleChange(idx, 'instituicao', e.target.value)} />
+                            <input value={edu.instituicao} onChange={(e) => handleChange(idx, 'instituicao', e.target.value)} placeholder="Ex: Universidade de São Paulo (USP)" />
                         </div>
-                        <div className="field-row">
-                            <div className="field">
-                                <label>Período</label>
-                                <input value={edu.periodo} onChange={(e) => handleChange(idx, 'periodo', e.target.value)} />
-                            </div>
-                            <div className="field">
-                                <label>Status</label>
-                                <select value={edu.status} onChange={(e) => handleChange(idx, 'status', e.target.value)}>
-                                    <option value="Concluído">Concluído</option>
-                                    <option value="Em andamento">Em andamento</option>
-                                    <option value="Curso em pausa">Curso em pausa</option>
-                                    <option value="Trancado">Trancado</option>
-                                </select>
-                            </div>
+                        <PeriodPicker
+                            label="Período do Curso"
+                            value={edu.periodo}
+                            onChange={(val) => handleChange(idx, 'periodo', val)}
+                            presentOptionLabel="Cursando Atualmente (Presente)"
+                        />
+                        <div className="field">
+                            <label>Status</label>
+                            <select value={edu.status} onChange={(e) => handleChange(idx, 'status', e.target.value)}>
+                                <option value="Concluído">Concluído</option>
+                                <option value="Em andamento">Em andamento</option>
+                                <option value="Curso em pausa">Curso em pausa</option>
+                                <option value="Trancado">Trancado</option>
+                            </select>
                         </div>
                     </div>
                 ))}

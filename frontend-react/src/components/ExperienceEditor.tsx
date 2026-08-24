@@ -1,5 +1,6 @@
 import { useContext, useState } from 'react';
 import { ResumeContext } from '../contexts/ResumeContext';
+import { PeriodPicker } from './PeriodPicker';
 
 export const ExperienceEditor = () => {
     const context = useContext(ResumeContext);
@@ -45,20 +46,20 @@ export const ExperienceEditor = () => {
                 {data.experiencias && data.experiencias.map((exp, idx) => (
                     <div className="item-card" key={exp.id || idx}>
                         <button className="remove-btn" onClick={() => removeExp(idx)}>✕</button>
-                        <div className="field-row">
-                            <div className="field">
-                                <label>Cargo</label>
-                                <input value={exp.cargo} onChange={(e) => handleChange(idx, 'cargo', e.target.value)} />
-                            </div>
-                            <div className="field">
-                                <label>Período</label>
-                                <input value={exp.periodo} onChange={(e) => handleChange(idx, 'periodo', e.target.value)} />
-                            </div>
+                        <div className="field">
+                            <label>Cargo</label>
+                            <input value={exp.cargo} onChange={(e) => handleChange(idx, 'cargo', e.target.value)} placeholder="Ex: Analista Financeiro" />
                         </div>
                         <div className="field">
                             <label>Empresa</label>
-                            <input value={exp.empresa} onChange={(e) => handleChange(idx, 'empresa', e.target.value)} />
+                            <input value={exp.empresa} onChange={(e) => handleChange(idx, 'empresa', e.target.value)} placeholder="Ex: Nome da Empresa" />
                         </div>
+                        <PeriodPicker
+                            label="Período de Atuação"
+                            value={exp.periodo}
+                            onChange={(val) => handleChange(idx, 'periodo', val)}
+                            presentOptionLabel="Emprego Atual / Presente"
+                        />
                         <div className="field">
                             <label>Atividades (uma por linha)</label>
                             <textarea rows={3} value={exp.bullets} onChange={(e) => handleChange(idx, 'bullets', e.target.value)} />
