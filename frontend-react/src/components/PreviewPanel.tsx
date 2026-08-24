@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { ResumeContext } from '../contexts/ResumeContext';
+import { AtsBadge } from './AtsBadge';
 
 export const PreviewPanel = () => {
     const context = useContext(ResumeContext);
@@ -38,6 +39,10 @@ export const PreviewPanel = () => {
 
     return (
         <div className="preview-panel">
+            <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
+                <AtsBadge />
+            </div>
+
             <div id="cv-preview">
                 <div className="cv-name">{data.nome || 'SEU NOME'}</div>
 

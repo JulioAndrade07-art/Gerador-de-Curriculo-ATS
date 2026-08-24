@@ -1,10 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import multer from 'multer';
+import multer, { MulterError } from 'multer';
 import path from 'path';
 import fs from 'fs';
-import XLSX from 'xlsx';
+import rateLimit from 'express-rate-limit';
 // @ts-ignore
 import pdfParse from 'pdf-parse';
 import Tesseract from 'tesseract.js';
@@ -20,6 +20,15 @@ if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 app.use(cors());
 app.use(express.json());
 
+// ─── RATE LIMITER (10 requisições por 15 minutos por IP) ───
+const ctpsLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Muitas tentativas de envio. Por favor, aguarde 15 minutos antes de tentar novamente.' }
+});
+
 // ─── MULTER CONFIG ───
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, UPLOAD_DIR),
@@ -31,10 +40,15 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage,
-    limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
+    limits: { fileSize: 5 * 1024 * 1024 }, // Limite rigoroso de 5 MB
     fileFilter: (req, file, cb) => {
-        if (file.mimetype === 'application/pdf') return cb(null, true);
-        cb(new Error('Apenas arquivos PDF são aceitos.'));
+        const isPdfMime = file.mimetype === 'application/pdf';
+        const isPdfExt = path.extname(file.originalname).toLowerCase() === '.pdf';
+
+        if (isPdfMime || isPdfExt) {
+            return cb(null, true);
+        }
+        cb(new Error('Apenas arquivos no formato PDF são aceitos.'));
     },
 });
 
@@ -43,35 +57,24 @@ async function extractText(filePath: string) {
     try {
         const buffer = fs.readFileSync(filePath);
         const data = await pdfParse(buffer);
-        if (data.text && data.text.trim().length > 100) {
+        if (data.text && data.text.trim().length > 50) {
             return { text: data.text, method: 'pdf-parse' };
         }
     } catch (err: any) {
-        console.warn('[pdf-parse] Falhou:', err.message);
+        console.warn('[pdf-parse] Falhou ao ler PDF:', err.message);
     }
 
     try {
-        console.log('[Tesseract] Iniciando OCR...');
+        console.log('[Tesseract] Tentando fallback de OCR...');
         const { data: { text } } = await Tesseract.recognize(filePath, 'por');
-        if (text && text.trim().length > 50) {
+        if (text && text.trim().length > 30) {
             return { text, method: 'tesseract-ocr' };
         }
     } catch (err: any) {
         console.warn('[Tesseract] Falhou:', err.message);
     }
 
-    throw new Error('Não foi possível extrair texto do PDF.');
-}
-
-function normalizeDate(raw: string | null) {
-    if (!raw) return null;
-    const clean = raw.trim();
-    const m1 = clean.match(/^(\d{2})\/(\d{2})\/(\d{2,4})$/);
-    if (m1) {
-        const year = m1[3].length === 2 ? '20' + m1[3] : m1[3];
-        return `${m1[1]}/${m1[2]}/${year}`;
-    }
-    return clean;
+    throw new Error('Não foi possível extrair o texto do arquivo PDF. Verifique se o arquivo não está corrompido ou protegido por senha.');
 }
 
 function parseDateBR(str: string | null) {
@@ -123,16 +126,31 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', message: 'API unificada v1.0' });
 });
 
-app.post('/api/upload', upload.single('pdf'), async (req: any, res: any) => {
+app.post('/api/upload', ctpsLimiter, (req: Request, res: Response, next: NextFunction) => {
+    upload.single('pdf')(req, res, (err: any) => {
+        if (err instanceof MulterError) {
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(413).json({ error: 'O arquivo PDF excede o tamanho máximo permitido de 5 MB.' });
+            }
+            return res.status(400).json({ error: `Erro no upload: ${err.message}` });
+        } else if (err) {
+            return res.status(400).json({ error: err.message });
+        }
+        next();
+    });
+}, async (req: Request, res: Response) => {
     if (!req.file) return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
+
     try {
         const { text, method } = await extractText(req.file.path);
         const result = parseCTPS(text);
         res.json({ success: true, method, ...result });
     } catch (err: any) {
-        res.status(422).json({ error: err.message });
+        res.status(422).json({ error: err.message || 'Erro ao processar PDF da Carteira de Trabalho.' });
     } finally {
-        fs.unlink(req.file.path, () => { });
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlink(req.file.path, () => { });
+        }
     }
 });
 

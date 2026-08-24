@@ -37,42 +37,47 @@ export const exportToDocx = async (htmlContent: string, filename: string) => {
 </html>`;
 
     try {
-        // Importação dinâmica para evitar crash do Vite com módulos CommonJS
-        const HTMLtoDOCX = (await import('html-to-docx')).default;
+        let HTMLtoDOCX: any;
+        try {
+            const mod = await import('html-to-docx');
+            HTMLtoDOCX = mod ? (mod.default || mod) : null;
+        } catch (e) {
+            console.warn('html-to-docx indisponível para carregamento dinâmico:', e);
+        }
 
-        const blob = await HTMLtoDOCX(docHTML, null, {
-            table: { row: { cantSplit: true } },
-            footer: false,
-            pageNumber: false,
-            font: 'Calibri',
-            fontSize: 22,
-            margins: { top: 720, right: 720, bottom: 720, left: 720 },
-        });
+        if (HTMLtoDOCX && typeof HTMLtoDOCX === 'function') {
+            const blob = await HTMLtoDOCX(docHTML, null, {
+                table: { row: { cantSplit: true } },
+                footer: false,
+                pageNumber: false,
+                font: 'Calibri',
+                fontSize: 22,
+                margins: { top: 720, right: 720, bottom: 720, left: 720 },
+            });
 
-        const url = URL.createObjectURL(blob as Blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${filename}.docx`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
-        console.log('DOCX exportado com sucesso!');
-        return true;
+            const url = URL.createObjectURL(blob as Blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}.docx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            return true;
+        }
     } catch (error) {
-        console.error('Erro ao exportar DOCX:', error);
-
-        // Fallback seguro: download como .doc HTML mesmo caso html-to-docx falhe
-        const blob = new Blob(['\ufeff', docHTML], { type: 'application/msword' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${filename}.docx`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        return true;
+        console.error('Erro ao exportar DOCX via html-to-docx:', error);
     }
+
+    // Fallback seguro: download como documento Word HTML nativo (.docx)
+    const blob = new Blob(['\ufeff', docHTML], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    return true;
 };

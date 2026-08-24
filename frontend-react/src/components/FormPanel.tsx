@@ -6,11 +6,14 @@ import { EducationEditor } from './EducationEditor';
 import { CourseEditor } from './CourseEditor';
 import { SkillsEditor } from './SkillsEditor';
 import { CtpsImporter } from './CtpsImporter';
+import { ProgressBar } from './ProgressBar';
+import { ConfirmClearModal } from './ConfirmClearModal';
 import { exportToDocx } from '../services/docxService';
 import { exportToPDF } from '../services/pdfService';
 import { DonationModal } from './DonationModal';
 import { FeedbackSupportModal } from './FeedbackSupportModal';
 import { formatPhone } from '../utils/formatters';
+import { trackEvent } from '../utils/analytics';
 
 export const FormPanel = () => {
     const context = useContext(ResumeContext);
@@ -19,6 +22,7 @@ export const FormPanel = () => {
 
     const [showDonation, setShowDonation] = useState(false);
     const [showSupportPrompt, setShowSupportPrompt] = useState(false);
+    const [showConfirmClear, setShowConfirmClear] = useState(false);
     const [dadosPessoaisAberto, setDadosPessoaisAberto] = useState(true);
     const [resumoAberto, setResumoAberto] = useState(true);
     const [estados, setEstados] = useState<{ sigla: string; nome: string }[]>([]);
@@ -34,21 +38,44 @@ export const FormPanel = () => {
         updateData({ tel: formatted });
     };
 
+    // 1. Carregar lista de Estados (UF)
     useEffect(() => {
         fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome')
             .then(res => res.json())
-            .then(d => setEstados(d));
+            .then(d => setEstados(d))
+            .catch(() => { });
     }, []);
 
+    // 2. Carregar Cidades por Estado com Cache em sessionStorage e Debounce (300ms)
     useEffect(() => {
-        if (data.estado_uf) {
-            setLoadingCidades(true);
-            fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${data.estado_uf}/municipios`)
-                .then(res => res.json())
-                .then(d => { setCidades(d.map((c: any) => c.nome)); setLoadingCidades(false); });
-        } else {
+        const uf = data.estado_uf;
+        if (!uf) {
             setCidades([]);
+            return;
         }
+
+        const cached = sessionStorage.getItem(`ibge_cidades_${uf}`);
+        if (cached) {
+            try {
+                setCidades(JSON.parse(cached));
+                return;
+            } catch (e) { }
+        }
+
+        setLoadingCidades(true);
+        const timer = setTimeout(() => {
+            fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`)
+                .then(res => res.json())
+                .then(d => {
+                    const list = d.map((c: any) => c.nome);
+                    sessionStorage.setItem(`ibge_cidades_${uf}`, JSON.stringify(list));
+                    setCidades(list);
+                    setLoadingCidades(false);
+                })
+                .catch(() => setLoadingCidades(false));
+        }, 300);
+
+        return () => clearTimeout(timer);
     }, [data.estado_uf]);
 
     const calcularIdade = (dataNasc: string) => {
@@ -66,9 +93,11 @@ export const FormPanel = () => {
 
     const executeExport = (type: 'docx' | 'pdf') => {
         if (type === 'docx') {
+            trackEvent('cv_exported_docx');
             const cvElement = document.getElementById('cv-preview');
             if (cvElement) exportToDocx(cvElement.innerHTML, data.nome || 'Curriculo');
         } else if (type === 'pdf') {
+            trackEvent('cv_exported_pdf');
             exportToPDF('cv-preview', data.nome || 'Curriculo');
         }
     };
@@ -110,8 +139,9 @@ export const FormPanel = () => {
         setShowDonation(true);
     };
 
-    const handleClear = () => {
-        if (confirm('Deseja realmente limpar todos os dados? Esta ação não pode ser desfeita.')) resetData();
+    const handleConfirmClear = () => {
+        resetData();
+        setShowConfirmClear(false);
     };
 
     return (
@@ -135,17 +165,25 @@ export const FormPanel = () => {
                     </div>
                 </div>
                 <div className="header-actions">
-                    <button className="btn btn-outline" onClick={handleClear} title="Limpar tudo">
+                    <button className="btn btn-outline" onClick={() => setShowConfirmClear(true)} title="Limpar tudo">
                         🗑 Limpar Formulário
                     </button>
                 </div>
             </header>
+
+            {/* ===== INDICADOR DE PROGRESSO DO PREENCHIMENTO ===== */}
+            <ProgressBar />
 
             <DonationModal isOpen={showDonation} onClose={() => setShowDonation(false)} />
             <FeedbackSupportModal
                 isOpen={showSupportPrompt}
                 onClose={handleSupportClose}
                 onSupport={handleSupportApprove}
+            />
+            <ConfirmClearModal
+                isOpen={showConfirmClear}
+                onClose={() => setShowConfirmClear(false)}
+                onConfirm={handleConfirmClear}
             />
 
             {/* ATS + CTPS */}
@@ -265,7 +303,7 @@ export const FormPanel = () => {
 
             {/* ===== SEÇÃO DE EXPORTAÇÃO NO FINAL DO FORMULÁRIO ===== */}
             <div style={{
-                margin: '24px 16px 32px',
+                margin: '24px 16px 16px',
                 padding: '16px',
                 background: 'var(--azul-claro)',
                 border: '1.5px solid var(--azul-borda)',
@@ -295,6 +333,11 @@ export const FormPanel = () => {
                         ⬇ Exportar PDF
                     </button>
                 </div>
+            </div>
+
+            {/* ===== AVISO DE PRIVACIDADE E ANALYTICS ANÔNIMO ===== */}
+            <div style={{ padding: '0 16px 24px', fontSize: '11px', color: '#94a3b8', textAlign: 'center', lineHeight: '1.4' }}>
+                📊 Utilizamos estatísticas anônimas sem cookies para melhorar a experiência no site. Nenhum dado pessoal do seu currículo é coletado.
             </div>
 
             <button className="btn-pix-float" onClick={() => setShowDonation(true)}>

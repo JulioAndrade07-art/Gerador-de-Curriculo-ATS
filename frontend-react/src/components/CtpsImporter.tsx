@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { ResumeContext } from '../contexts/ResumeContext';
+import { trackEvent } from '../utils/analytics';
 
 export const CtpsImporter = () => {
     const context = useContext(ResumeContext);
@@ -18,7 +19,10 @@ export const CtpsImporter = () => {
         formData.append('pdf', file);
         try {
             const response = await fetch('/api/upload', { method: 'POST', body: formData });
-            if (!response.ok) throw new Error('Falha ao processar o PDF.');
+            if (!response.ok) {
+                const errJson = await response.json().catch(() => ({}));
+                throw new Error(errJson.error || 'Falha ao processar o PDF da Carteira de Trabalho.');
+            }
             const result = await response.json();
             if (result.success) {
                 const novosDados: any = {};
@@ -26,19 +30,21 @@ export const CtpsImporter = () => {
                 if (result.dadosPessoais?.dataNascimento) {
                     const parts = result.dadosPessoais.dataNascimento.split('/');
                     if (parts.length === 3)
-                        novosDados.data_nascimento = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+                        novosDados.data_nascimento = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
                 }
                 if (result.contratos?.length > 0) {
                     novosDados.experiencias = result.contratos.map((c: any) => ({
-                        id: Math.random().toString(36).substr(2, 9),
+                        id: `exp_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
                         cargo: c.cargo || 'Cargo não identificado',
                         empresa: c.empresa || 'Empresa não identificada',
                         periodo: `${c.admissao} - ${c.demissao || 'Atual'}`,
                         bullets: ''
                     }));
                 }
-                if (confirm('Dados encontrados! Deseja importar nome, data de nascimento e experiências?'))
+                if (confirm('Dados encontrados! Deseja importar nome, data de nascimento e experiências?')) {
+                    trackEvent('ctps_imported');
                     updateData(novosDados);
+                }
             } else {
                 throw new Error(result.error || 'Erro desconhecido ao processar PDF.');
             }

@@ -3,6 +3,7 @@ import { ResumeContext } from '../contexts/ResumeContext';
 import { calcularScoreATS } from '../services/atsEngine';
 import type { AtsScoreResult } from '../services/atsEngine';
 import { ATS_AREAS } from '../data/atsData';
+import { trackEvent } from '../utils/analytics';
 
 export const AtsPanel = () => {
     const context = useContext(ResumeContext);
@@ -14,7 +15,10 @@ export const AtsPanel = () => {
     useEffect(() => {
         const res = calcularScoreATS(data, data.atsArea, data.atsVaga);
         setScoreData(res);
-    }, [data]);
+        if (data.atsArea || (data.atsVaga && data.atsVaga.trim())) {
+            trackEvent('ats_analyzed', { area: data.atsArea });
+        }
+    }, [data.atsArea, data.atsVaga, data.resumo, data.habTech, data.habSoft]);
 
     const autoFill = () => {
         const area = ATS_AREAS[data.atsArea];
@@ -35,7 +39,7 @@ export const AtsPanel = () => {
             </div>
             <div className="section-body">
                 <div className="field">
-                    <label>Área Profissional</label>
+                    <label>Área Profissional Alvo</label>
                     <select
                         value={data.atsArea}
                         onChange={(e) => updateData({ atsArea: e.target.value })}
@@ -45,6 +49,16 @@ export const AtsPanel = () => {
                             <option key={k} value={k}>{ATS_AREAS[k].label}</option>
                         ))}
                     </select>
+                </div>
+
+                <div className="field">
+                    <label>Cole a descrição da vaga (opcional para comparar palavras-chave)</label>
+                    <textarea
+                        rows={3}
+                        value={data.atsVaga || ''}
+                        onChange={(e) => updateData({ atsVaga: e.target.value })}
+                        placeholder="Cole aqui o texto do anúncio da vaga..."
+                    />
                 </div>
 
                 {data.atsArea && (
@@ -66,7 +80,7 @@ export const AtsPanel = () => {
                                 className="ats-bar-fill"
                                 style={{
                                     width: `${scoreData.score}%`,
-                                    background: scoreData.score >= 80 ? '#1a7a4a' : scoreData.score >= 60 ? '#d97706' : '#dc2626'
+                                    background: scoreData.score >= 75 ? '#1a7a4a' : scoreData.score >= 50 ? '#f59e0b' : '#dc2626'
                                 }}
                             />
                         </div>
