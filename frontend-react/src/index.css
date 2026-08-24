@@ -811,7 +811,7 @@ body {
     padding: 16px;
   }
 
-  /* Mobile: sem transform e sem min-height para não gerar espaço extra */
+  /* Mobile: sem transform e sem min-height para não gerar espaço extra na tela */
   #cv-preview {
     width: 100%;
     min-height: 0 !important;
@@ -820,11 +820,36 @@ body {
   }
 }
 
-/* Fix PDF mobile */
-body.exporting-pdf #cv-preview {
+/* ===== FIX EXPORTAÇÃO PDF PARIDADE CELULAR / COMPUTADOR ===== */
+#cv-pdf-render-wrapper #cv-preview-pdf-clone,
+#cv-preview-pdf-clone {
   width: 794px !important;
+  min-width: 794px !important;
   max-width: 794px !important;
-  min-height: 0 !important;
-  margin: 0 !important;
+  padding: 36px 44px !important;
+  box-sizing: border-box !important;
   transform: none !important;
+  margin: 0 !important;
+  font-family: 'Calibri', 'Segoe UI', Arial, sans-serif !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+#cv-preview-pdf-clone .cv-name {
+  text-align: center !important;
+  font-size: 20pt !important;
+  font-weight: 700 !important;
+  color: #1F3864 !important;
+}
+
+#cv-preview-pdf-clone .cv-contact {
+  text-align: center !important;
+  font-size: 8.5pt !important;
+  color: #444444 !important;
+}
+
+#cv-preview-pdf-clone .cv-skills-cols {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 0 16px !important;
 }
