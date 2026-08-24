@@ -1,0 +1,160 @@
+================================================================================
+          DOCUMENTAÇÃO COMPLETA DE FUNCIONAMENTO DO SITE
+                    GERADOR DE CURRÍCULO ATS
+================================================================================
+
+1. VISÃO GERAL DO PROJETO
+--------------------------------------------------------------------------------
+O "Gerador de Currículo ATS" é uma aplicação web completa, moderna e responsiva
+desenvolvida para ajudar candidatos a criar, otimizar e exportar currículos 
+profissionais perfeitamente compatíveis com sistemas ATS (Applicant Tracking Systems),
+utilizados por grandes empresas e recrutadores para triagem automática de CVs.
+
+A aplicação conta com um Frontend em React + Vite + TypeScript e um Backend
+em Node.js + Express + TypeScript para processamento e leitura de documentos.
+
+
+2. ARQUITETURA TÉCNICA E TECNOLOGIAS UTILIZADAS
+--------------------------------------------------------------------------------
+- Frontend: React (v18), Vite, TypeScript, Vanilla CSS3 (Design System próprio).
+- Backend: Node.js, Express, TypeScript, Multer, pdf-parse.
+- Gerenciamento de Estado: React Context API (ResumeContext) com persistência 
+  automática via LocalStorage.
+- Geradores de Documento: 
+  * DOCX: html-docx-js / docxService.
+  * PDF: html2pdf.js + html2canvas + jsPDF com renderização estrita A4 isolada.
+
+
+3. ESTRUTURA DO FRONTEND (frontend-react)
+--------------------------------------------------------------------------------
+O frontend é dividido em componentes reutilizáveis e focados:
+
+A) ResumeContext.tsx (Gerenciador de Estado):
+   - Mantém todos os dados do currículo centralizados (Dados pessoais, resumo, 
+     experiências, formações, cursos, habilidades).
+   - Salva automaticamente qualquer alteração no LocalStorage do navegador.
+   - Oferece função de limpar/resetar o formulário.
+
+B) FormPanel.tsx (Painel Esquerdo - Formulário):
+   - Organizado em abas sanfonadas (accordion) expansíveis.
+   - Cabeçalho limpo com logo oficial e botão "Limpar Formulário".
+   - Máscara automática no campo de telefone: formata em tempo real no padrão
+     (DDD) 00000-0000 ou (DDD) 0000-0000, bloqueando caracteres não numéricos.
+   - Preenchimento inteligente de Estado/Cidade via integração com a API do IBGE.
+   - Cálculo automático de idade a partir da Data de Nascimento.
+   - Bloco de exportação no final do formulário com botões "Exportar DOCX" e 
+     "Exportar PDF".
+
+C) PeriodPicker.tsx (Componente de Período Simples):
+   - Substituiu os antigos inputs de texto por seletores intuitivos por clique.
+   - Organizado em dois blocos empilhados: Data de Início e Data de Término.
+   - Cada bloco fornece seletores separados para Mês (ex: 01 - Jan) e Ano.
+   - Inclui caixa de seleção "Atual / Em andamento" (ou "Cursando"). Quando marcada,
+     desativa a data de término e formata o período final como "Presente".
+   - Totalmente responsivo para Computador (PC) e Celular (Mobile).
+
+D) PreviewPanel.tsx (Painel Direito - Pré-visualização em Tempo Real):
+   - Renderiza a folha de currículo em tamanho real A4 (#cv-preview).
+   - Atualizado instantaneamente a cada letra digitada no formulário.
+   - Estruturado com hierarquia visual rigorosa: Nome em destaque (azul #1F3864),
+     linha de contato centralizada, títulos de seção em caixa alta com linha 
+     divisória azul e listas de habilidades em duas colunas.
+
+E) AtsPanel.tsx & atsEngine.ts (Motor de Análise ATS):
+   - Permite colar o texto de uma vaga de emprego para análise.
+   - Compara as palavras-chave exigidas pela vaga com o texto do currículo.
+   - Calcula uma pontuação de compatibilidade de 0 a 100%.
+   - Exibe tags verde (palavras encontradas) e vermelho (palavras ausentes),
+     além de orientações práticas para aumentar as chances de aprovação.
+
+F) CtpsImporter.tsx (Importador de Carteira de Trabalho Digital):
+   - Permite ao usuário fazer o upload do PDF da Carteira de Trabalho Digital (CTPS).
+   - Envia o arquivo para o servidor Backend Node.js, que extrai o histórico de 
+     vínculos empregatícios e preenche automaticamente a lista de experiências.
+
+G) FeedbackSupportModal.tsx & DonationModal.tsx (Apoio ao Projeto):
+   - Antes de iniciar a exportação (PDF ou DOCX), o site exibe um modal discreto
+     e elegante perguntando se o usuário deseja apoiar o projeto.
+   - Se o usuário clicar em "Sim, quero apoiar", abre o modal com QR Code PIX 
+     e chave copia-e-cola, realizando o download em seguida.
+   - Se clicar em "Não, obrigado" ou fechar, o download é realizado imediatamente.
+   - Possui checkbox "Não perguntar novamente nesta máquina" que grava a 
+     preferência no LocalStorage.
+
+
+4. SISTEMA DE EXPORTAÇÃO (DOCX E PDF)
+--------------------------------------------------------------------------------
+A exportação foi projetada para garantir documentos 100% profissionais e fiéis:
+
+A) Exportação DOCX (docxService.ts):
+   - Converte o HTML do currículo em um arquivo Word editável (.docx).
+   - Mantém as fontes, títulos e formatação limpa aceita pelos leitores ATS.
+
+B) Exportação PDF com Paridade Celular/Computador (pdfService.ts):
+   - Resolve o problema comum onde PDFs gerados em celulares (iPhone/Android)
+     saem desconfigurados devido ao tamanho reduzido da tela (viewport).
+   - Mecanismo de Funcionamento:
+     1. Cria um container temporário invisível fora da tela (off-screen) com 
+        dimensão exata de A4 Desktop (794px de largura a 96 DPI).
+     2. Clona o elemento do currículo (#cv-preview) para esse container.
+     3. Aplica a função `applyStrictPdfStyles()`, injetando estilos inline e 
+        cores hexadecimais hardcoded (#1F3864 para azul, #444444 para cinza, 
+        #111111 para preto) em cada tag.
+     4. Executa o guard `await document.fonts.ready` para garantir que todas as 
+        fontes foram carregadas antes de tirar o snapshot.
+     5. Desativa detectores de links automáticos do iOS Safari via meta tag 
+        `<meta name="format-detection">` e CSS `text-decoration: none`.
+     6. O html2pdf.js + html2canvas gera o PDF com resolução 2x (alta qualidade).
+     7. Remove o container temporário da memória ao concluir.
+
+
+5. ESTRUTURA DO BACKEND (backend-node)
+--------------------------------------------------------------------------------
+- Localizado em `backend-node/src/server.ts`.
+- Servidor Express rodando na porta 3001 com suporte a CORS.
+- Endpoint POST `/api/parse-ctps`:
+  * Utiliza a biblioteca `multer` para upload seguro do PDF da CTPS.
+  * Processa o buffer do PDF utilizando `pdf-parse` para extrair o texto bruto.
+  * Aplica Expressões Regulares (Regex) para identificar:
+    - Razão Social do Empregador
+    - Cargo Ocupado
+    - Data de Admissão
+    - Data de Desligamento / Saída
+  * Retorna um JSON estruturado para o frontend preencher os campos do formulário.
+
+
+6. RESPONSIVIDADE E DESIGN SYSTEM
+--------------------------------------------------------------------------------
+- Estilizado com Vanilla CSS em `frontend-react/src/index.css`.
+- Paleta de Cores Corporativa:
+  * Azul Principal: #1F3864 (Títulos, botões primários, detalhes)
+  * Azul Claro: #eef2f9 (Fundo de seções, abas)
+  * Verde Sucesso: #1a7a4a / #0d9488 (Indicadores, apoio PIX)
+  * Cinza de Fundo: #e8edf6 / #f7f8fa
+- Comportamento Responsivo:
+  * PC / Desktop: Layout em Grid de 2 colunas (Painel de formulário à esquerda, 
+    pré-visualização da folha A4 à direita).
+  * Mobile / Tablet: Layout empilhado fluido. O formulário fica no topo e a 
+    pré-visualização ajusta-se à largura da tela.
+
+
+7. COMO EXECUTAR O PROJETO LOCALMENTE
+--------------------------------------------------------------------------------
+Prerequisites: Node.js (v18+) e NPM instalados.
+
+Passo 1: Rodar o Backend (Node.js)
+  $ cd backend-node
+  $ npm install
+  $ npx ts-node src/server.ts
+  (Servidor rodando em http://localhost:3001)
+
+Passo 2: Rodar o Frontend (React + Vite)
+  $ cd frontend-react
+  $ npm install
+  $ npm run dev
+  (Aplicação rodando em http://localhost:5173)
+
+
+================================================================================
+                       FIM DA DOCUMENTAÇÃO DO PROJETO
+================================================================================
