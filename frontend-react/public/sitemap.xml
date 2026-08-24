@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Sitemap do Gerador de Currículo ATS
+  Quando novas páginas forem criadas (ex: /como-funciona, /blog/nome-do-artigo),
+  adicione novos blocos <url> abaixo com seus respectivos caminhos e frequências.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://gerador-de-curriculo-ats-ten.vercel.app/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

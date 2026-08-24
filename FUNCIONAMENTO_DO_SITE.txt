@@ -29,6 +29,7 @@ A. FRONTEND (frontend-react)
        largura fixa A4 (794px), injetando estilos rígidos inline.
      * DOCX: `html-to-docx` com fallback automático para formato Word nativo Blob.
    - Analytics: Utilitário leve e privacy-friendly (`analytics.ts`) sem uso de cookies.
+   - SEO Técnico: `robots.txt`, `sitemap.xml`, Canonical Tags e Meta Tags Open Graph.
 
 B. BACKEND (backend-node)
    - Runtime: Node.js com TypeScript e Express
@@ -68,16 +69,31 @@ B. BACKEND (backend-node)
   Componente para upload do PDF da Carteira de Trabalho Digital e importação direta.
 
 
-4. SEGURANÇA E PERFORMANCE NO BACKEND
+4. ESTRUTURA DE SEO TÉCNICO E INDEXAÇÃO
 --------------------------------------------------------------------------------
-- Limite de Tamanho: Uploads restritos a 5 MB via Multer.
-- Filtro de Formato: Aceita unicamente arquivos `.pdf`.
-- Proteção contra Abuso: Rate Limit de 10 requisições a cada 15 min por IP.
-- Tratamento de Erros: Captura falhas do `pdf-parse` (ex: PDF protegido por senha) 
-  retornando respostas HTTP amigáveis (400 / 413 / 422).
+- `public/robots.txt`:
+  Define permissão total para crawlers (`User-agent: *`, `Allow: /`) e aponta o 
+  caminho oficial do `sitemap.xml`.
+
+- `public/sitemap.xml`:
+  Lista a URL canônica `https://gerador-de-curriculo-ats-ten.vercel.app/` com 
+  frequência semanal. Novas páginas (blog, sobre) devem ser incluídas neste arquivo.
+
+- `index.html`:
+  Configurado com `<meta name="description">` (até 160 caracteres), `<meta name="robots" content="index, follow">`, 
+  `<link rel="canonical">`, Open Graph (Facebook/WhatsApp) e Twitter Cards.
 
 
-5. COMO EXECUTAR O PROJETO LOCALMENTE
+5. GUIA PARA EXPANSÃO FUTURA (PÁGINAS ESTÁTICAS E BLOG)
+--------------------------------------------------------------------------------
+Ao adicionar páginas de conteúdo estático ou postagens de blog:
+1. Rotas amigáveis: Utilizar caminhos limpos como `/como-funciona` ou `/blog/nome-do-artigo`.
+2. Metadados por página: Garantir que cada rota possua `<title>` e `<meta description>` únicos (usando `react-helmet-async` ou similar).
+3. Atualização do Sitemap: Adicionar cada nova rota ao `public/sitemap.xml`.
+4. Pré-renderização (SSG): Como o projeto é uma SPA client-side em React, para garantir 100% de indexabilidade dos artigos do blog pelo Google, considerar ferramentas de SSG como `vite-react-ssg`, `astro` ou pré-renderização estática das rotas públicas.
+
+
+6. COMO EXECUTAR O PROJETO LOCALMENTE
 --------------------------------------------------------------------------------
 Passo 1: Rodar o Backend (Node.js)
   $ cd backend-node

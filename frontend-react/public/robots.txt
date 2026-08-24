@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gerador-de-curriculo-ats-ten.vercel.app/sitemap.xml
