@@ -42,7 +42,7 @@ export const MESES_NOMES: Record<string, string> = {
 export function getYearsList(): string[] {
     const currentYear = new Date().getFullYear();
     const years: string[] = [];
-    for (let y = currentYear + 2; y >= 1960; y--) {
+    for (let y = 2040; y >= 1960; y--) {
         years.push(y.toString());
     }
     return years;
